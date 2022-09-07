@@ -2,7 +2,6 @@
 Нахождение наибольшей общей подпоследовательности
 */
 
-
 import java.util.Random;
 
 public class lcs {
