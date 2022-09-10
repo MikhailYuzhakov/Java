@@ -1,5 +1,5 @@
 /*
-Нахождение наибольшей общей подпоследовательности
+Нахождение наибольшей общей подпоследовательности (сложность алгоритма О(n*M), перебором O(n^m))
 */
 
 import java.util.Random;
@@ -7,62 +7,37 @@ import java.util.Random;
 public class lcs {
     static Random rnd = new Random();
     public static void main(String[] args) {
-        int N = 10; // длина последовательностей
-        int M = 14;
-        int[][] lcs = new int[N + 1][M + 1];
-        int[][] last_i = new int[N + 1][M + 1];
-        int[][] last_j = new int[N + 1][M + 1];
-        int[][] last_symb = new int[N + 1][M + 1];
+        int N = 100; // длины последовательностей
+        int M = 100;
+        int[][] lcs = new int[N + 1][M + 1]; //таблица НОП префиксов 
 
-        for (int i = 0; i <= N ; i++)
-            for (int j = 0; j <= M; j++)
-            {
-                last_i[i][j] = -1;
-                last_j[i][j] = -1;
-                last_symb[i][j] = -1;
-            }
+        // int[] x = {5, 9, 3, 8, 2};
+        // int[] y = {9, 3, 3, 9, 8};
+        int[] x = gen_array(N); //генерация случайной последовательности размера N
+        int[] y = gen_array(M); //генерация случайно последовательности размера M
 
-
-        int[] x = gen_array(N); //генерация случайной последовательности
-        int[] y = gen_array(M);
-
-        System.out.print("x = ");
-        printArr1D(x, N); // печать исходных последовательностей
+        System.out.print("x = "); // печать исходных последовательностей
+        printArr1D(x, N); 
         System.out.print("y = ");
         printArr1D(y, M);
 
-        // printArr2D(lcs, N, M); //вывод таблицы пустой
-
-        for (int i = 1; i <= N; i++) { // сравниваем каждый элемент {x} с каждым элементом {y}
-            for (int j = 1; j <= M; j++) {
-                if (x[i - 1] == y[j - 1]) { // если значения совпали, 
-                    lcs[i][j] = lcs[i - 1][j - 1] + 1; //то укорачиваем последовательность на 1 и фиксируем в таблице
-                    last_i[i][j] = i - 1;
-                    last_j[i][j] = j - 1;
-                    last_symb[i][j] = x[i - 1];
-                } else {
-                    if (lcs[i - 1][j] >  lcs[i][j - 1]) {
-                        lcs[i][j] = lcs[i - 1][j];
-                        last_i[i][j] = i - 1;
-                        last_j[i][j] = j;
-                    } else {
-                        lcs[i][j] = lcs[i][j - 1];
-                        last_i[i][j] = i;
-                        last_j[i][j] = j - 1;
-                    }
+        //создаем таблицу (карту маршрутов для нахождения НОП)
+        for (int i = 1; i <= N; i++) // сравниваем каждый элемент {x} с каждым элементом {y}
+            for (int j = 1; j <= M; j++)
+                //при совпадении элементов - укорачиваем обе последовательности на 1 элемент
+                if (x[i - 1] == y[j - 1]) lcs[i][j] = lcs[i - 1][j - 1] + 1;                
+                else {
+                    //при несовпадении элементов - исключаем элемент одной из последовательностей и укорачиваем её
+                    if (lcs[i - 1][j] > lcs[i][j - 1]) lcs[i][j] = lcs[i - 1][j];  
+                    else lcs[i][j] = lcs[i][j - 1];
                 }
-            }
-        }
-        // int[] subSeq = new int[lcs[N][M]];
-        // int cur = last_symb[N][M];
-        // // i = 
-        // while (last_i[i] != -1) {
-
-        // }
-        // printArr2D(lcs, N, M); // вывод таблицы заполненной
+        //System.out.println("LCS:");
+        //printArr2D(lcs, N + 1, M + 1); // вывод таблицы заполненной
         System.out.println("Длина НОП = " + lcs[N][M]); // печать длины НОП
+        print_lcs(lcs, x, y, N, M);
     }
 
+    //функция для печати одномерного массива
     public static void printArr1D(int[] arr, int length) {
         System.out.print("{ ");
         for (int i = 0; i < length; i++)
@@ -70,13 +45,7 @@ public class lcs {
         System.out.println("}");
     }
 
-    public static int max(int a, int b) {
-        if (a > b) 
-            return a;
-        else 
-            return b; 
-    }
-
+    //функция для печати двумерного массива
     public static void printArr2D(int[][] arr, int row, int col) {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -86,11 +55,34 @@ public class lcs {
         }
     }
 
+    //функция для генерации случайного массива длины length
     public static int[] gen_array(int length) {
         int [] arr = new int[length];
         for (int i = 0; i < length; i++) {
             arr[i] = rnd.nextInt(10);
         }
         return arr;
+    }
+
+    //функция для вывода НОП
+    public static void print_lcs(int[][] lcs, int[] x, int[] y, int N, int M) {
+        int k = 0;
+        int ans[] = new int[lcs[N][M]]; //создаем массив для хранения ответа длинной равной НОП
+        while (N > 0 && M > 0) { //пока не добрались до границы таблицы
+            if (x[N - 1] == y[M - 1]) { //если элементы равны - записываем в ответ
+                ans[k] = x[N - 1];
+                k++;
+                N--;
+                M--;
+            } else 
+                if (lcs[N - 1][M] == lcs[N][M]) { //двигаемся в ту ячейку где префикс равен текущему (совпадений не было)
+                    N--;
+                } else {
+                    M--;
+                }
+        }
+        System.out.print("НОП: { ");
+        for (N = ans.length - 1; N >= 0; N--) System.out.print(ans[N] + " "); //выводим ответ в обратном порядке
+        System.out.println("}");
     }
 }
