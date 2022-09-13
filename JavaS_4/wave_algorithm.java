@@ -21,15 +21,63 @@ public class wave_algorithm {
         map[start_y][start_x] = -2; //задаем точки старта и финиша для наглядности
         map[stop_y][stop_x] = -3;
         //clear_terminal();
-        printArr2D(map, N, M); //пустая карта
-        map[start_y][start_x] = 0; //посмотрели визуально и хватит
+        //printArr2D(map, N, M); //пустая карта
+        //map[start_y][start_x] = 0; //посмотрели визуально и хватит
         map[stop_y][stop_x] = 0;
-        
         //делаем первый ход вне рекурсии
         first_step(map, start_x, start_y);
         int d = 1;
         update_map(map, d, M, N, stop_x, stop_y); //обновляет пути
-        printArr2D(map, N, M);
+        map[start_y][start_x] = 0; //для корректоного нахождения обратного пути
+        printArr2D(map, N, M); //печатаем карту с весами маршрутов
+        for (int i = 0; i < M; i++) {System.out.print("----");} //печатаем разделитель
+        System.out.println();
+        find_path(map, stop_x, stop_y, start_x, start_y); //ищем обратный путь
+        paint_path(map); //рисуем обратный путь
+        printArr2D(map, N, M); //выводим обратный путь в консоль
+    }
+
+    //восстановить один их самых коротких путей
+    public static void find_path(int[][] map, int x, int y, int start_x, int start_y) {
+        if (x == start_x && y == start_y) {
+            map[y][x] = -4;   
+            return;
+        }
+        else {
+            // System.out.printf("d = %d, x = %d, y = %d\n", map[y][x], x, y); // для отладки
+            if (map[y - 1][x] == map[y][x] - 1) {
+                map[y][x] = -4;
+                y--;
+                find_path(map, x, y, start_x, start_y);
+            }
+            if (map[y + 1][x] == map[y][x] - 1) {
+                map[y][x] = -4;
+                y++;
+                find_path(map, x, y, start_x, start_y);
+            }
+            if (map[y][x - 1] == map[y][x] - 1) {
+                map[y][x] = -4;
+                x--;
+                find_path(map, x, y, start_x, start_y);
+            }
+            if (map[y][x + 1] == map[y][x] - 1) {
+                map[y][x] = -4;
+                x++;
+                find_path(map, x, y, start_x, start_y);
+            }
+        }
+
+    }
+
+    //визуально помечаем кратчайший пути (1 - препятствия, 7 - кратчайший путь, 0 - нет препятствий)
+    public static void paint_path(int[][] map) {
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                if (map[i][j] > 0) map[i][j] = 0;
+                if (map[i][j] == -1) map[i][j] = 1;
+                if (map[i][j] == -4) map[i][j] = 7;
+            }
+        }
     }
 
     //делаем обновление карты
@@ -46,7 +94,7 @@ public class wave_algorithm {
             }
         }
         if (map[stop_y][stop_x] > 0) return; //условие выходы из рекурсии
-        d = (int) (d + 1); //увеличиваем длину маршрута
+        d = d + 1; //увеличиваем длину маршрута
         update_map(map, d, M, N, stop_x, stop_y);
     }
 
@@ -74,7 +122,7 @@ public class wave_algorithm {
         System.out.println("\033[2J\033[1;1H");
     }
 
-    //рандомный генератор препятсвий
+    //НЕ рандомный (когда-нибудь потом) генератор препятсвий
     public static int[][] wall_random_generator(int[][] map, int N, int M) {
         int x = 1;
         int y = 10;
