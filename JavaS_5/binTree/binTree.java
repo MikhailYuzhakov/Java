@@ -55,10 +55,9 @@ public class binTree {
 
         // root(A(C(G,H),D(I,J)),B(E(K,L),F(M,N)))
         System.out.print("Скобочная запись дерева: ");
-        StringBuilder tree = new StringBuilder();
-        Iterr.View(root, "", tree);
-        Iterr.setBrackets(tree);
-        System.out.println(tree);
+        StringBuilder sb = new StringBuilder();
+        Iterr.View(root, sb);
+        System.out.println(sb);
     }
     
 }
@@ -83,25 +82,46 @@ class Iterr {
     /**
      * Скобочный вывод бинарного дерева
      */
-    static void View(Node n, String space, StringBuilder sb) {
+    static void View(Node n, StringBuilder sb) {
         if (n != null) {
-            sb.append(String.format("%s%s", space, n.value));
+            sb.append(String.format("%s", n.value));
 
-            if (n.left != null) {
-                View(n.left, "(", sb);
-            }
-            if (n.right != null) {
-                i++;
-                if (i == 1) {
-                    View(n.right, ",", sb);
-                }
-                if (i == 2) { 
-                    i = 0;
-                    View(n.right, "),", sb);
-                }
+            if (n.left != null || n.right != null) {
+                sb.append("(");
+                if (n.left != null)  View(n.left, sb);
+                else sb.append("nil");
+                sb.append(",");
+                if (n.right != null) View(n.right, sb);
+                else sb.append("nil");
+                sb.append(")");
             }
         }
     }
+
+    // class Iterr {
+    //     static void View(Node n) {
+    //       if (n != null) {
+    //         System.out.printf("%s", n.value);
+      
+    //         if (n.left != null || n.right != null) {
+    //           System.out.printf("(");
+    //           if (n.left != null) {
+    //             View(n.left);
+    //           } else {
+    //             System.out.printf("nil");
+    //           }
+    //           System.out.printf(",");
+    //           if (n.right != null) {
+    //             View(n.right);
+    //           } else {
+    //             System.out.printf("nil");
+    //           }
+    //           System.out.printf(")");
+    //         }
+    //       }
+    //     }
+    //   }
+      
 
     /**
      * Добавляет недостающие скобочки в конец дерева
